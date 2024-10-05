@@ -1,6 +1,7 @@
 package com.example.banking.service.impl;
 
 import com.example.banking.dto.AccountDto;
+import com.example.banking.dto.TransferFundDto;
 import com.example.banking.entity.Account;
 import com.example.banking.exception.AccountException;
 import com.example.banking.mapper.AccountMapper;
@@ -75,5 +76,21 @@ public class AccountServiceImpl implements AccountService {
                 .findById(id)
                 .orElseThrow(() -> new AccountException("Account does not exist"));
         accountRepository.deleteById(id);
+    }
+
+    @Override
+    public void transferFunds(TransferFundDto transferFundDto) {
+        Account fromAccount = accountRepository
+                .findById(transferFundDto.fromAccountId())
+                .orElseThrow(() -> new AccountException("Account does not exist"));
+        Account toAccount = accountRepository
+                .findById(transferFundDto.toAccountId())
+                .orElseThrow(() -> new AccountException("Account does not exist"));
+
+        fromAccount.setBalance(fromAccount.getBalance() - transferFundDto.amount());
+        toAccount.setBalance(toAccount.getBalance() + transferFundDto.amount());
+
+        accountRepository.save(fromAccount);
+        accountRepository.save(toAccount);
     }
 }
